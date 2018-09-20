@@ -14,6 +14,7 @@ public class ReadCSVFile {
 	public static Map<String, List<String[]>> getQueryMap(File file, String qColumnName) throws IOException {
 		String line = null;
 		boolean firstRow = true;
+		int numberOfColumns = 0;
 		Map<String, List<String[]>> qColumnMap = new HashMap<String, List<String[]>>();
 
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
@@ -22,6 +23,7 @@ public class ReadCSVFile {
 			line = line.replace("\"", "");
 			String[] row = line.split(",");
 			if (firstRow) {
+				numberOfColumns = row.length;
 				for (int i = 0; i < row.length; i++) {
 					if (row[i].equals(qColumnName)) {
 						qColumnRowNumber = i;
@@ -35,8 +37,12 @@ public class ReadCSVFile {
 				if (qColumnRowNumber == -1) {
 					throw new RuntimeException("Column not found");
 				}
-				updateQColumnMap(qColumnMap, row, qColumnRowNumber);
-				countOfRowsIngested++;
+				if(row.length != numberOfColumns){
+					countOfRowsNotIngested++;
+				}else{
+					updateQColumnMap(qColumnMap, row, qColumnRowNumber);
+					countOfRowsIngested++;	
+				}
 			}
 		}
 
@@ -76,8 +82,7 @@ public class ReadCSVFile {
 
 		}
 
-		System.out.println("\n\ncount of rows ingested: " + countOfRowsIngested);
+		System.out.println("\ncount of rows ingested: " + countOfRowsIngested);
 		System.out.println("count of rows not ingested:" + countOfRowsNotIngested);
 	}
 }
-
